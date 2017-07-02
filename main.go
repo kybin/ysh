@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os/exec"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -41,8 +42,26 @@ func main() {
 				log.Print(err)
 				return
 			}
-			fmt.Println(string(p))
-			err = conn.WriteMessage(websocket.TextMessage, []byte("hello"))
+
+			cmdstr := string(p)
+			if cmdstr == "" {
+				continue
+			}
+			cmds := strings.Split(strings.TrimSpace(cmdstr), " ")
+
+			cmd := cmds[0]
+			args := cmds[1:]
+
+			result := []byte{}
+			c := exec.Command(cmd, args...)
+			out, err := c.CombinedOutput()
+			if err != nil {
+				result = []byte("error: " + err.Error())
+			} else {
+				result = out
+			}
+
+			err = conn.WriteMessage(websocket.TextMessage, result)
 			if err != nil {
 				log.Print(err)
 				return
