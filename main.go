@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/gorilla/websocket"
@@ -23,8 +24,12 @@ var upgrader = websocket.Upgrader{
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		sh := shell{Dir: "/home/kybin"}
-		err := shellTmpl.Execute(w, sh)
+		dir, err := filepath.Abs(".")
+		if err != nil {
+			log.Fatal(err)
+		}
+		sh := shell{Dir: dir}
+		err = shellTmpl.Execute(w, sh)
 		if err != nil {
 			log.Fatal(err)
 		}
