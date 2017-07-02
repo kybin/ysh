@@ -2,6 +2,60 @@
 <html>
 
 <head>
+<script type="text/javascript">
+window.onload = function () {
+    var conn;
+    var msg = document.getElementById("command");
+    var log = document.getElementById("log");
+
+    function appendLog(item) {
+        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+        log.appendChild(item);
+        if (doScroll) {
+            log.scrollTop = log.scrollHeight - log.clientHeight;
+        }
+    }
+
+    msg.onkeydown = function (event) {
+        var keyCode = event.which || event.keyCode;
+        if (keyCode != 13) {
+            return true;
+        }
+        // enter pressed
+        if (!conn) {
+            return false;
+        }
+        if (!msg.value) {
+            return false;
+        }
+        conn.send(msg.value);
+        msg.value = "";
+        return false;
+    };
+
+    if (window["WebSocket"]) {
+        conn = new WebSocket("ws://" + document.location.host + "/ws");
+        conn.onclose = function (evt) {
+            var item = document.createElement("div");
+            item.innerHTML = "<b>Connection closed.</b>";
+            appendLog(item);
+        };
+        conn.onmessage = function (evt) {
+            var messages = evt.data.split('\n');
+            for (var i = 0; i < messages.length; i++) {
+                var item = document.createElement("div");
+                item.innerText = messages[i];
+                appendLog(item);
+            }
+        };
+    } else {
+        var item = document.createElement("div");
+        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+        appendLog(item);
+    }
+};
+</script>
+
 <style>
 html {
 	width: 100%;
@@ -27,7 +81,7 @@ div, input {
 	margin: 5px;
 }
 
-#output {
+#log {
 	flex: 1;
 	overflow-y: scroll;
 	margin-left: 5px;
@@ -50,68 +104,13 @@ div, input {
 <div id="address">
 	<input class="full-width" style="font-size:20px" type="text" value="{{.Dir}}"/>
 </div>
-<div id="output">
-	<div>please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist please is not exist </div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
-	<div>please is not exist</div>
+<div id="log">
 </div>
 <div id="commandline">
-	<input class="full-width" style="font-size:20px" type="text" value="please rm -rf /"/>
+	<input id="command" class="full-width" style="font-size:20px" type="text" value=""/>
+</div>
+</form>
+
 </div>
 </body>
 
