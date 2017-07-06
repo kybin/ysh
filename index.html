@@ -5,7 +5,8 @@
 <script type="text/javascript">
 window.onload = function () {
     var conn;
-    var msg = document.getElementById("command");
+    var addr = document.getElementById("address");
+    var cmd = document.getElementById("command");
     var log = document.getElementById("log");
 
     function appendLog(item) {
@@ -16,7 +17,7 @@ window.onload = function () {
         }
     }
 
-    msg.onkeydown = function (event) {
+    addr.onkeydown = function (event) {
         var keyCode = event.which || event.keyCode;
         if (keyCode != 13) {
             return true;
@@ -25,11 +26,27 @@ window.onload = function () {
         if (!conn) {
             return false;
         }
-        if (!msg.value) {
+        if (!addr.value) {
             return false;
         }
-        conn.send(msg.value);
-        msg.value = "";
+        conn.send("dir:" + addr.value);
+        return false;
+    }
+
+    cmd.onkeydown = function (event) {
+        var keyCode = event.which || event.keyCode;
+        if (keyCode != 13) {
+            return true;
+        }
+        // enter pressed
+        if (!conn) {
+            return false;
+        }
+        if (!cmd.value) {
+            return false;
+        }
+        conn.send("cmd:" + cmd.value);
+        cmd.value = "";
         return false;
     };
 
@@ -41,7 +58,15 @@ window.onload = function () {
             appendLog(item);
         };
         conn.onmessage = function (evt) {
-            var messages = evt.data.split('\n');
+            console.log(evt.data);
+            var msg = evt.data.split(":", 2);
+            console.log(msg);
+            var typ = msg[0];
+            var body = msg[1];
+            if (body == "") {
+                return;
+            }
+            var messages = body.split('\n');
             for (var i = 0; i < messages.length; i++) {
                 var item = document.createElement("div");
                 item.innerText = messages[i];
@@ -101,8 +126,8 @@ div, input {
 </head>
 
 <body>
-<div id="address">
-	<input class="full-width" style="font-size:20px" type="text" value="{{.Dir}}"/>
+<div id="top">
+	<input id="address" class="full-width" style="font-size:20px" type="text" value="{{.Dir}}"/>
 </div>
 <div id="log">
 </div>
