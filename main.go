@@ -97,7 +97,7 @@ func main() {
 			case "cmd":
 				out, err := sh.runCommand(body)
 				if err != nil {
-					result = []byte("error:" + err.Error())
+					result = []byte("error:" + string(out) + err.Error())
 				} else {
 					result = append([]byte("ok:"), out...)
 				}

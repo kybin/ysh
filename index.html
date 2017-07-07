@@ -59,10 +59,10 @@ window.onload = function () {
         };
         conn.onmessage = function (evt) {
             console.log(evt.data);
-            var msg = evt.data.split(":", 2);
-            console.log(msg);
-            var typ = msg[0];
-            var body = msg[1];
+            var msg = evt.data;
+            var i = msg.indexOf(":")
+            var typ = msg.substring(0, i);
+            var body = msg.substring(i+1, msg.length+1);
             if (body == "") {
                 return;
             }
